@@ -9,12 +9,20 @@ class ReviewsController < ApplicationController
     @review = Review.new(review_params)
     # we need `restaurant_id` to asssociate review with corresponding restaurant
     @review.restaurant = Restaurant.find(params[:restaurant_id])
-    @review.save
+    respond_to do |format|
+      if @review.save
+        format.html { redirect_to restaurant_path(@review.restaurant), notice: 'Review was successfully created.' }
+        format.json { render :show, status: :created, location: @review.restaurant }
+      else
+        format.html { render :new }
+        format.json { render json: @review.restaurant.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   private
 
   def review_params
-    params.require(:review).permit(:content)
+    params.require(:review).permit(:content, :rating)
   end
 end
